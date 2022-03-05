@@ -14,15 +14,19 @@ class Db {
 
   late int _port;
 
-  Db(String schema, String server, int port, String topic) {
+  late String _key;
+
+  Db(String schema, String server, int port, String topic, String key) {
     _schema = schema;
     _topic = topic;
     _server = server + ":" + port.toString();
     _port = port;
+    _key = key;
   }
 
   Future<StreamSubscription<Uint8List>> onMessage(void onData(event)) {
-    return Socket.connect(_server, _port).then((socket) => socket.listen(onData));
+    return Socket.connect(_server + '/' + _topic + '/' + _key, _port)
+        .then((socket) => socket.listen(onData));
   }
 
   Future<http.Response> sendMessage(Object msg) {
@@ -30,9 +34,7 @@ class Db {
 
     return http.post(
       Uri.parse(uri),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
+      headers: getHeaders(),
       body: jsonEncode(msg),
     );
   }
@@ -44,9 +46,7 @@ class Db {
 
     return http.patch(
       Uri.parse(uri),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
+      headers: getHeaders(),
       body: jsonEncode(msg),
     );
   }
@@ -56,10 +56,14 @@ class Db {
 
     return http.get(
       Uri.parse(uri),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
+      headers: getHeaders(),
     );
   }
 
+  Map<String, String> getHeaders() {
+    return <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      'db-key': _key,
+    };
+  }
 }
