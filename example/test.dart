@@ -1,13 +1,28 @@
-import 'package:db_client_dart/db_client_dart.dart';
+import 'package:db_client_dart/application.dart';
+import 'package:flutter/material.dart';
 
-main() {
-  var db = Db('http', 'localhost', 9090, 'test');
-  
-  db.sendMessage(<String, String>{
-      'title': "test",
-    }).then((value) {
-     print(value.body);
-  });
+void main() {
+  runApp(const MyApp());
+}
 
-  db.onMessage((event) {print(event);});
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    var app = Application('http', 'localhost', 9090, 'test', 'db-key');
+
+    print(app);
+
+    return MaterialApp(
+        home: Scaffold(
+            appBar: AppBar(
+              // Here we take the value from the MyHomePage object that was created by
+              // the App.build method, and use it to set our appbar title.
+              title: Text("test"),
+            ),
+            body: Text("test")
+            // MainScreen(),
+            ));
+  }
 }
