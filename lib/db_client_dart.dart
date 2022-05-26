@@ -10,14 +10,14 @@ import 'package:http/http.dart' as http;
 class Db {
   late String _topic;
   late String _server;
-  late String _schema;
+  late String _scheme;
 
   late int _port;
 
   late String _key;
 
   Db(String schema, String server, int port, String topic, String key) {
-    _schema = schema;
+    _scheme = schema;
     _topic = topic;
     _server = server + ":" + port.toString();
     _port = port;
@@ -30,7 +30,7 @@ class Db {
   }
 
   Future<http.Response> sendMessage(Object msg) {
-    String uri = _schema + '://' + _server + '/push/' + _topic;
+    String uri = _scheme + '://' + _server + '/push/' + _topic;
 
     return http.post(
       Uri.parse(uri),
@@ -40,7 +40,7 @@ class Db {
   }
 
   Future<http.Response> update(String id, Map msg) {
-    String uri = _schema + '://' + _server + '/push/' + _topic;
+    String uri = _scheme + '://' + _server + '/push/' + _topic;
 
     msg['id'] = id;
 
@@ -52,7 +52,7 @@ class Db {
   }
 
   Future<http.Response> list() {
-    String uri = _schema + '://' + _server + '/list/' + _topic;
+    String uri = _scheme + '://' + _server + '/em/list/' + _topic;
 
     return http.get(
       Uri.parse(uri),

@@ -27,3 +27,8 @@
 .dart_tool/
 .packages
 build/
+
+# Plugins (already resolved through pubspec.yaml)
+.flutter-plugins
+.flutter-plugins-dependencies
+lib/generated_plugin_registrant.dart
