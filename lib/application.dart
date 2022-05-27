@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:db_client_dart/config.dart';
+import 'package:db_client_dart/entity_manager.dart';
 import 'package:db_client_dart/storage.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -37,12 +38,12 @@ class Application {
     SharedPreferences.getInstance().then((prefs) {
       var uid = prefs.getString(uuidKey);
       if (uid == null) {
-        _registerToken(prefs);
+        _registerDevice(prefs);
       }
     });
   }
 
-  _registerToken(SharedPreferences prefs) {
+  _registerDevice(SharedPreferences prefs) {
     var uuid = const Uuid();
     var uid = uuid.v4();
 
@@ -75,5 +76,9 @@ class Application {
   Storage getStorage() {
     _storage ??= Storage(getClient());
     return _storage!;
+  }
+
+  EntityManager getEntityManager(String topic) {
+    return EntityManager(getClient(), topic);
   }
 }

@@ -70,4 +70,13 @@ class AppHttpClient {
     );
   }
 
+  Future<http.Response> delete(String url, {Object? body}) {
+    var uri = Uri(scheme: _scheme, host: _server, port: port, path: url);
+    return http.delete(
+      uri,
+      headers: getHeaders(),
+      body: body
+    );
+  }
+
 }
