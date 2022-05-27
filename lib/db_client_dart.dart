@@ -21,12 +21,12 @@ class Db {
   }
 
   Future<http.Response> sendMessage(Object msg) {
-    return _client.post('/push/' + topic, body: msg);
+    return _client.post('/em/' + topic, body: msg);
   }
 
   Future<http.Response> update(String id, Map msg) {
     msg['id'] = id;
-    return _client.post('/push/' + topic, body: msg);
+    return _client.post('/em/' + topic + '/' + id, body: msg);
   }
 
   Future<http.Response> list() {
