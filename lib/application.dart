@@ -1,12 +1,12 @@
 import 'dart:convert';
 import 'dart:io';
-
+import 'package:db_client_dart/config.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
 import 'db_client_dart.dart';
+import 'http_client.dart';
 
 class Application {
   late String _topic;
@@ -17,7 +17,9 @@ class Application {
 
   late String _key;
 
+  late AppHttpClient? _client;
   late Db? _db;
+  late Config? _config;
 
   static const uuidKey = 'device_key';
 
@@ -41,25 +43,29 @@ class Application {
     var uuid = const Uuid();
     var uid = uuid.v4();
 
-    http.post(
-      Uri.parse(_scheme + '://' + _server + '/api/device/register'),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-        'db-key': '123'
-      },
-      body: jsonEncode(<String, String>{
+    getClient().post('/api/device/register', body:  jsonEncode(<String, String>{
         'device': kIsWeb ? 'web' : Platform.operatingSystem,
         'device_token': uid,
-      }),
-    ).then((response){
+        'user_id': '' // user uuid
+      })).then((response){
       if (response.statusCode == 200) {
         prefs.setString(uuidKey, uid);
       }
     });
   }
 
+  AppHttpClient getClient() {
+    _client ??= AppHttpClient(_key, _scheme, _server, _port);
+    return _client!;
+  }
+
   Db getDb() {
-    _db ??= Db(_scheme, _server, _port, _topic, _key);
+    _db ??= Db(getClient(), _topic);
     return _db!;
+  }
+
+  Config getConfig() {
+    _config ??= Config(getClient());
+    return _config!;
   }
 }
