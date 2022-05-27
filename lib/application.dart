@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:db_client_dart/config.dart';
+import 'package:db_client_dart/storage.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
@@ -20,8 +21,10 @@ class Application {
   late AppHttpClient? _client;
   late Db? _db;
   late Config? _config;
+  late Storage? _storage;
 
   static const uuidKey = 'device_key';
+
 
   Application(
       String schema, String server, int port, String topic, String key) {
@@ -67,5 +70,10 @@ class Application {
   Config getConfig() {
     _config ??= Config(getClient());
     return _config!;
+  }
+
+  Storage getStorage() {
+    _storage ??= Storage(getClient());
+    return _storage!;
   }
 }

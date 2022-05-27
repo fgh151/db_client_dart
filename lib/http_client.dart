@@ -10,17 +10,26 @@ class AppHttpClient {
   int port = 80;
   final String _key;
 
-  AppHttpClient(this._key, this._server, this._scheme, this.port);
+
+  Map<String, String> headers = {};
+
+  AppHttpClient(this._key, this._server, this._scheme, this.port) {
+    headers = {
+      'Content-Type': 'application/json; charset=UTF-8',
+      'db-key': _key,
+    };
+  }
 
   get serverUrl => _scheme + "://" + _server;
   get serverPort => port;
   get serverKey => _key;
 
   Map<String, String> getHeaders() {
-    return <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-      'db-key': _key,
-    };
+    return headers;
+  }
+
+  void setAuthHeader(String value) {
+    headers['Authorization'] = 'Bearer $value';
   }
 
   Future<http.Response> post(String url, {Object? body}) {
@@ -30,6 +39,18 @@ class AppHttpClient {
       headers: getHeaders(),
       body: jsonEncode(body),
     );
+  }
+
+  Future<http.Response> postFile(String path, String filePath) {
+
+    var uri = Uri(scheme: _scheme, host: _server, port: port, path: path);
+    var request = http.MultipartRequest('POST', uri);
+
+    return http.MultipartFile.fromPath('file', filePath).then((value) {
+      request.files.add(value);
+      request.headers.addAll(getHeaders());
+      return request.send().then((value) => http.Response.fromStream(value));
+    });
   }
 
   Future<http.Response> patch(String url, {Object? body}) {
