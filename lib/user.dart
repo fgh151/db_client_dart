@@ -66,6 +66,10 @@ class User {
     });
   }
 
+  Future<bool> logout() {
+    return SharedPreferences.getInstance().then((prefs) => prefs.clear());
+  }
+
   Future<User> register() {
     return _client
         .post('/api/user/register', body: this.toJson())
