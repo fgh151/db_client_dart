@@ -2,11 +2,11 @@ import 'dart:convert';
 import 'http_client.dart';
 
 abstract class Entity {
-  String toJson();
+  Map<String, dynamic> toJson();
 
   String getId();
 
-  Entity fromJson(String json);
+  Entity fromJson(Map json);
 }
 
 class EntityManager {

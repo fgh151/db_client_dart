@@ -1,27 +1,4 @@
-import 'package:db_client_dart/application.dart';
-import 'package:db_client_dart/entity_manager.dart';
 import 'package:flutter/material.dart';
-
-class TestEntity extends Entity {
-  @override
-  Entity fromJson(String json) {
-    // TODO: implement fromJson
-    throw UnimplementedError();
-  }
-
-  @override
-  String getId() {
-    // TODO: implement getId
-    throw UnimplementedError();
-  }
-
-  @override
-  String toJson() {
-    // TODO: implement toJson
-    throw UnimplementedError();
-  }
-
-}
 
 void main() {
   runApp(const MyApp());

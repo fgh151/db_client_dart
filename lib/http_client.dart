@@ -19,6 +19,7 @@ class AppHttpClient {
 
   AppHttpClient(this._key, this._scheme, this._server, this.port) {
     headers = {
+      'Origin': 'app',
       'Content-Type': 'application/json; charset=UTF-8',
       'db-key': _key,
     };
