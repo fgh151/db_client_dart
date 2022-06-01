@@ -32,12 +32,6 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var app = Application('http', 'localhost', 9090, 'test', 'db-key');
-
-    print(app);
-
-    app.getEntityManager("test").read({"id": 1}).then((value) => {print(value)});
-
     return MaterialApp(
         home: Scaffold(
             appBar: AppBar(

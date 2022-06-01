@@ -1,7 +1,12 @@
-
 import 'dart:convert';
+import 'dart:io';
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uuid/uuid.dart';
+
+import 'application.dart';
 
 class AppHttpClient {
   final String _server;
@@ -10,10 +15,9 @@ class AppHttpClient {
   int port = 80;
   final String _key;
 
-
   Map<String, String> headers = {};
 
-  AppHttpClient(this._key, this._server, this._scheme, this.port) {
+  AppHttpClient(this._key, this._scheme, this._server, this.port) {
     headers = {
       'Content-Type': 'application/json; charset=UTF-8',
       'db-key': _key,
@@ -21,7 +25,9 @@ class AppHttpClient {
   }
 
   get serverUrl => _scheme + "://" + _server;
+
   get serverPort => port;
+
   get serverKey => _key;
 
   Map<String, String> getHeaders() {
@@ -42,7 +48,6 @@ class AppHttpClient {
   }
 
   Future<http.Response> postFile(String path, String filePath) {
-
     var uri = Uri(scheme: _scheme, host: _server, port: port, path: path);
     var request = http.MultipartRequest('POST', uri);
 
@@ -72,11 +77,29 @@ class AppHttpClient {
 
   Future<http.Response> delete(String url, {Object? body}) {
     var uri = Uri(scheme: _scheme, host: _server, port: port, path: url);
-    return http.delete(
-      uri,
-      headers: getHeaders(),
-      body: body
-    );
+    return http.delete(uri, headers: getHeaders(), body: body);
   }
 
+  registerDevice(SharedPreferences prefs, {String? userId}) {
+
+    var deviceId = prefs.getString(Application.uuidKey);
+
+    if (deviceId == null) {
+      var uuid = const Uuid();
+      deviceId = uuid.v4();
+    }
+
+    var params = {
+          'device': kIsWeb ? 'web' : Platform.operatingSystem,
+          'device_token': deviceId,
+          'user_id': userId ??= '' // user uuid
+        };
+
+    post('/api/device/register',
+        body: params).then((response) {
+      if (response.statusCode == 200) {
+        prefs.setString(Application.uuidKey, deviceId!);
+      }
+    });
+  }
 }

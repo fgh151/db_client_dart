@@ -1,16 +1,14 @@
-import 'dart:convert';
-import 'dart:io';
 import 'package:db_client_dart/config.dart';
 import 'package:db_client_dart/entity_manager.dart';
 import 'package:db_client_dart/storage.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:db_client_dart/user.dart';
+import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:uuid/uuid.dart';
 
 import 'db_client_dart.dart';
 import 'http_client.dart';
 
-class Application {
+class Application extends InheritedWidget {
   late String _topic;
   late String _server;
   late String _scheme;
@@ -19,48 +17,41 @@ class Application {
 
   late String _key;
 
-  late AppHttpClient? _client;
+  AppHttpClient _client;
   late Db? _db;
   late Config? _config;
   late Storage? _storage;
 
   static const uuidKey = 'device_key';
 
-
   Application(
-      String schema, String server, int port, String topic, String key) {
+      String schema, String server, int port, String topic, String appKey,
+      {Key? key, required super.child})
+      : _client = AppHttpClient(appKey, schema, server, port),
+        super(key: key) {
     _scheme = schema;
     _topic = topic;
-    _server = server + ":" + port.toString();
+    _server = "$server:$port";
     _port = port;
-    _key = key;
+    _key = appKey;
 
     SharedPreferences.getInstance().then((prefs) {
-      var uid = prefs.getString(uuidKey);
-      if (uid == null) {
-        _registerDevice(prefs);
-      }
-    });
-  }
 
-  _registerDevice(SharedPreferences prefs) {
-    var uuid = const Uuid();
-    var uid = uuid.v4();
+      User.isLoggedIn().then((value) {
+        if (value) {
+          var user = getUser();
+          _client.registerDevice(prefs, userId: user.id);
+        } else {
+          _client.registerDevice(prefs);
+        }
+      });
 
-    getClient().post('/api/device/register', body:  jsonEncode(<String, String>{
-        'device': kIsWeb ? 'web' : Platform.operatingSystem,
-        'device_token': uid,
-        'user_id': '' // user uuid
-      })).then((response){
-      if (response.statusCode == 200) {
-        prefs.setString(uuidKey, uid);
-      }
+      _client.registerDevice(prefs);
     });
   }
 
   AppHttpClient getClient() {
-    _client ??= AppHttpClient(_key, _scheme, _server, _port);
-    return _client!;
+    return _client;
   }
 
   Db getDb() {
@@ -80,5 +71,18 @@ class Application {
 
   EntityManager getEntityManager(String topic) {
     return EntityManager(getClient(), topic);
+  }
+
+  @override
+  bool updateShouldNotify(covariant InheritedWidget oldWidget) {
+    // TODO: implement updateShouldNotify
+    return true;
+  }
+
+  static Application of(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<Application>() as Application;
+
+  User getUser() {
+    return User(_client);
   }
 }

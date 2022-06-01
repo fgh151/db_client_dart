@@ -1,11 +1,13 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:db_client_dart/http_client.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class User {
-  late int id;
-  late String email;
-  late String password;
+  String id = '';
+  String email = '';
+  String password = '';
   String token = '';
 
   final AppHttpClient _client;
@@ -27,7 +29,7 @@ class User {
     return this;
   }
 
-  User setId(int id) {
+  User setId(String id) {
     this.id = id;
     return this;
   }
@@ -39,7 +41,13 @@ class User {
     return u;
   }
 
-  get isLoggedIn => token.isNotEmpty;
+  Map<String, dynamic> toJson() => {
+        'email': email,
+        'password': password,
+        'id': id,
+      };
+
+  // get isLoggedIn => token.isNotEmpty;
 
   Future<bool> auth() {
     return _client.post('/api/user/auth', body: this).then((value) {
@@ -47,7 +55,11 @@ class User {
         var user = fromJson(jsonDecode(value.body));
         _client.setAuthHeader(user.token);
         token = user.token;
-        return true;
+        return SharedPreferences.getInstance().then((prefs) {
+          prefs.setString("token", token);
+          _client.registerDevice(prefs, userId: user.id);
+          return true;
+        });
       }
 
       return false;
@@ -55,16 +67,23 @@ class User {
   }
 
   Future<User> register() {
-    return _client.post('/api/user/register', body: this).then((value) {
+    return _client
+        .post('/api/user/register', body: this.toJson())
+        .then((value) {
       var user = fromJson(jsonDecode(value.body));
       _client.setAuthHeader(user.token);
       token = user.token;
-      return this;
+
+      return SharedPreferences.getInstance().then((prefs) {
+        prefs.setString("token", token);
+        _client.registerDevice(prefs, userId: user.id);
+        return this;
+      });
     });
   }
 
   Future<User> fetchUser() {
-    if (isLoggedIn) {
+    return isLoggedIn().then((logeed) {
       return _client.get("/api/user/me").then((value) {
         var user = fromJson(jsonDecode(value.body));
         _client.setAuthHeader(user.token);
@@ -73,8 +92,22 @@ class User {
         id = user.id;
         return this;
       });
-    }
+    });
+  }
 
-    return Future(() => this);
+  static Future<bool> isLoggedIn() {
+    return SharedPreferences.getInstance().then((prefs) {
+      var token = prefs.getString("token");
+
+      if (token == null) {
+        return false;
+      }
+
+      if (token.isEmpty) {
+        return false;
+      }
+
+      return true;
+    });
   }
 }
