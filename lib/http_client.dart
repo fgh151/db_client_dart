@@ -25,7 +25,7 @@ class AppHttpClient {
     };
   }
 
-  get serverUrl => _scheme + "://" + _server;
+  get serverUrl => "$_scheme://$_server";
 
   get serverPort => port;
 

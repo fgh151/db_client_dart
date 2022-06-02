@@ -16,21 +16,21 @@ class EntityManager {
   EntityManager(this._client, this._topic);
 
   void create(Entity e) {
-    _client.post("/em/" + _topic, body: e);
+    _client.post("/em/$_topic", body: e);
   }
 
   Future<Iterable> read(Object condition) {
-    return _client.post("/em/find/" + _topic, body: condition).then((response) {
+    return _client.post("/em/find/$_topic", body: condition).then((response) {
       Iterable l = json.decode(response.body);
       return l;
     });
   }
 
   void update(Entity e) {
-    _client.patch("/em/" + _topic + '/' + e.getId(), body: e);
+    _client.patch("/em/$_topic/${e.getId()}", body: e);
   }
 
   void delete(Entity e) {
-    _client.delete("/em/" + _topic + '/' + e.getId(), body: e);
+    _client.delete("/em/$_topic/${e.getId()}", body: e);
   }
 }

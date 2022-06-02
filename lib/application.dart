@@ -17,7 +17,7 @@ class Application extends InheritedWidget {
 
   late String _key;
 
-  AppHttpClient _client;
+  final AppHttpClient _client;
   late Db? _db;
   late Config? _config;
   late Storage? _storage;

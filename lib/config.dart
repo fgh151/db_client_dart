@@ -7,6 +7,6 @@ class Config {
   Config(this._client);
 
   Future<http.Response> getById(String id) {
-    return _client.get('/config/' + id);
+    return _client.get('/config/$id');
   }
 }

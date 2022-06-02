@@ -72,7 +72,7 @@ class User {
 
   Future<User> register() {
     return _client
-        .post('/api/user/register', body: this.toJson())
+        .post('/api/user/register', body: toJson())
         .then((value) {
       var user = fromJson(jsonDecode(value.body));
       _client.setAuthHeader(user.token);
@@ -87,7 +87,7 @@ class User {
   }
 
   Future<User> fetchUser() {
-    return isLoggedIn().then((logeed) {
+    return isLoggedIn().then((logged) {
       return _client.get("/api/user/me").then((value) {
         var user = fromJson(jsonDecode(value.body));
         _client.setAuthHeader(user.token);

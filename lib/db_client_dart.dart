@@ -14,22 +14,22 @@ class Db {
 
   Db(this._client, this.topic);
 
-  Future<StreamSubscription<Uint8List>> onMessage(void onData(event)) {
+  Future<StreamSubscription<Uint8List>> onMessage(Function(Uint8List) onData) {
     return Socket.connect(_client.serverUrl + '/em/subscribe/' + topic + '/' + _client.serverKey,
             _client.serverPort)
         .then((socket) => socket.listen(onData));
   }
 
   Future<http.Response> sendMessage(Object msg) {
-    return _client.post('/em/' + topic, body: msg);
+    return _client.post('/em/$topic', body: msg);
   }
 
   Future<http.Response> update(String id, Map msg) {
     msg['id'] = id;
-    return _client.post('/em/' + topic + '/' + id, body: msg);
+    return _client.post('/em/$topic/$id', body: msg);
   }
 
   Future<http.Response> list() {
-    return _client.get('/em/list/' + topic);
+    return _client.get('/em/list/$topic');
   }
 }
