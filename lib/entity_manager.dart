@@ -26,6 +26,21 @@ class EntityManager {
     });
   }
 
+  Future<List<T>> list(Object condition) {
+    return _client.post("/em/list/$_topic", body: condition).then((response) {
+
+      List<T> l = [];
+
+      List<dynamic> decoded = jsonDecode(response.body);
+
+      decoded.forEach((element) {
+        l.add(element as T);
+      });
+
+      return l;
+    });
+  }
+
   void update(Entity e) {
     _client.patch("/em/$_topic/${e.getId()}", body: e);
   }
