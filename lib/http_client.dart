@@ -68,8 +68,14 @@ class AppHttpClient {
     );
   }
 
-  Future<http.Response> get(String url, {Object? body}) {
-    var uri = Uri(scheme: _scheme, host: _server, port: port, path: url);
+  Future<http.Response> get(String url, {Map<String, dynamic>? body}) {
+    Map<String, String> queryParameters = {};
+    if (body != null) {
+      body.forEach((key, value) {
+        queryParameters[key] = value.toString();
+      });
+    }
+    var uri = Uri(scheme: _scheme, host: _server, port: port, path: url, queryParameters: queryParameters);
     return http.get(
       uri,
       headers: getHeaders(),

@@ -26,18 +26,13 @@ class EntityManager {
     });
   }
 
-  Future<List<T>> list(Object condition) {
-    return _client.post("/em/list/$_topic", body: condition).then((response) {
+  Future<List> list(Map<String, dynamic> condition, int limit, int offset) {
+    condition["_start"] = offset;
+    condition["_end"] = limit + offset;
 
-      List<T> l = [];
-
+    return _client.get("/em/list/$_topic", body: condition).then((response) {
       List<dynamic> decoded = jsonDecode(response.body);
-
-      decoded.forEach((element) {
-        l.add(element as T);
-      });
-
-      return l;
+      return decoded == null ? [] : decoded;
     });
   }
 
