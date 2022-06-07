@@ -10,13 +10,6 @@ import 'http_client.dart';
 
 class Application extends InheritedWidget {
   late String _topic;
-  late String _server;
-  late String _scheme;
-
-  late int _port;
-
-  late String _key;
-
   final AppHttpClient _client;
   late Db? _db;
   late Config? _config;
@@ -29,11 +22,7 @@ class Application extends InheritedWidget {
       {Key? key, required super.child})
       : _client = AppHttpClient(appKey, schema, server, port),
         super(key: key) {
-    _scheme = schema;
     _topic = topic;
-    _server = "$server:$port";
-    _port = port;
-    _key = appKey;
 
     SharedPreferences.getInstance().then((prefs) {
 
