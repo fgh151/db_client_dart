@@ -38,9 +38,10 @@ class Application extends InheritedWidget {
     SharedPreferences.getInstance().then((prefs) {
 
       User.isLoggedIn().then((value) {
+        _client.setAuthHeader(prefs.getString("token")!);
         if (value) {
-          var user = getUser();
-          _client.registerDevice(prefs, userId: user.id);
+          getUser().fetchUser().then((user) => _client.registerDevice(prefs, userId: user.id));
+
         } else {
           _client.registerDevice(prefs);
         }
