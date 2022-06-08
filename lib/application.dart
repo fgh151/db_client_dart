@@ -14,7 +14,7 @@ class Application extends InheritedWidget {
   late Db? _db;
   late Config? _config;
   late Storage? _storage;
-  late User? _user;
+  User? _user;
 
   static const uuidKey = 'device_key';
 
@@ -24,22 +24,12 @@ class Application extends InheritedWidget {
       : _client = AppHttpClient(appKey, schema, server, port),
         super(key: key) {
     _topic = topic;
-
-    _user = User(_client);
-
     SharedPreferences.getInstance().then((prefs) {
-
-      User.isLoggedIn().then((value) {
-        _client.setAuthHeader(prefs.getString("token")!);
-        if (value) {
-          getUser().fetchUser().then((user) => _client.registerDevice(prefs, userId: user.id));
-
-        } else {
-          _client.registerDevice(prefs);
-        }
+      _client.setAuthHeader(prefs.getString("token")!);
+      User(_client).fetchUser().then((user) {
+        _user = user;
+        _client.registerDevice(prefs, userId: user.id);
       });
-
-      _client.registerDevice(prefs);
     });
   }
 
@@ -68,17 +58,15 @@ class Application extends InheritedWidget {
 
   @override
   bool updateShouldNotify(covariant Application oldWidget) {
-    var currentUser = getUser();
-    var oldUser = oldWidget.getUser();
-
-    return currentUser.token != oldUser.token;
+    return userId != oldWidget.userId;
   }
+
+  String? get userId => _user != null ? _user!.id : null;
 
   static Application of(BuildContext context) =>
       context.dependOnInheritedWidgetOfExactType<Application>() as Application;
 
   User getUser() {
-     _user ??= User(_client);
-     return _user!;
+    return _user!;
   }
 }
