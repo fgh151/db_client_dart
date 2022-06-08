@@ -24,4 +24,8 @@ class DbPlatform extends Platform {
     return deviceId;
   }
 
+  static bool get isDesktop =>
+      !Platform.isAndroid && !Platform.isIOS;
+
+  static bool get isMobile => !isDesktop;
 }
