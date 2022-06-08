@@ -33,8 +33,10 @@ class AppHttpClient {
     return headers;
   }
 
-  void setAuthHeader(String value) {
-    headers['Authorization'] = 'Bearer $value';
+  void setAuthHeader(String? value) {
+    if (value != null) {
+      headers['Authorization'] = 'Bearer $value';
+    }
   }
 
   Future<http.Response> post(String url, {Object? body}) {

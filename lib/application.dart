@@ -25,11 +25,16 @@ class Application extends InheritedWidget {
         super(key: key) {
     _topic = topic;
     SharedPreferences.getInstance().then((prefs) {
-      _client.setAuthHeader(prefs.getString("token")!);
-      User(_client).fetchUser().then((user) {
-        _user = user;
-        _client.registerDevice(prefs, userId: user.id);
-      });
+      var token = prefs.getString("token");
+      if (token != null) {
+        _client.setAuthHeader(prefs.getString("token"));
+        User(_client).fetchUser().then((user) {
+          _user = user;
+          _client.registerDevice(prefs, userId: user.id);
+        });
+      } else {
+        _client.registerDevice(prefs);
+      }
     });
   }
 
@@ -58,7 +63,7 @@ class Application extends InheritedWidget {
 
   @override
   bool updateShouldNotify(covariant Application oldWidget) {
-    return userId != oldWidget.userId;
+    return false; // userId != oldWidget.userId;
   }
 
   String? get userId => _user != null ? _user!.id : null;
