@@ -14,6 +14,7 @@ class Application extends InheritedWidget {
   late Db? _db;
   late Config? _config;
   late Storage? _storage;
+  late User? _user;
 
   static const uuidKey = 'device_key';
 
@@ -23,6 +24,8 @@ class Application extends InheritedWidget {
       : _client = AppHttpClient(appKey, schema, server, port),
         super(key: key) {
     _topic = topic;
+
+    _user = User(_client);
 
     SharedPreferences.getInstance().then((prefs) {
 
@@ -64,15 +67,18 @@ class Application extends InheritedWidget {
   }
 
   @override
-  bool updateShouldNotify(covariant InheritedWidget oldWidget) {
-    // TODO: implement updateShouldNotify
-    return true;
+  bool updateShouldNotify(covariant Application oldWidget) {
+    var currentUser = getUser();
+    var oldUser = oldWidget.getUser();
+
+    return currentUser.token != oldUser.token;
   }
 
   static Application of(BuildContext context) =>
       context.dependOnInheritedWidgetOfExactType<Application>() as Application;
 
   User getUser() {
-    return User(_client);
+     _user ??= User(_client);
+     return _user!;
   }
 }

@@ -12,7 +12,13 @@ class User {
 
   final AppHttpClient _client;
 
-  User(this._client);
+  User(this._client) {
+    fetchUser().then((u) {
+      id = u.id;
+      email = u.email;
+      token = u.token;
+    });
+  }
 
   User setEmail(String email) {
     this.email = email;
