@@ -1,10 +1,8 @@
 import 'dart:convert';
-import 'dart:io';
 
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:db_client_dart/platrorm.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:uuid/uuid.dart';
 
 import 'application.dart';
 
@@ -75,7 +73,12 @@ class AppHttpClient {
         queryParameters[key] = value.toString();
       });
     }
-    var uri = Uri(scheme: _scheme, host: _server, port: port, path: url, queryParameters: queryParameters);
+    var uri = Uri(
+        scheme: _scheme,
+        host: _server,
+        port: port,
+        path: url,
+        queryParameters: queryParameters);
     return http.get(
       uri,
       headers: getHeaders(),
@@ -88,24 +91,15 @@ class AppHttpClient {
   }
 
   registerDevice(SharedPreferences prefs, {String? userId}) {
-
-    var deviceId = prefs.getString(Application.uuidKey);
-
-    if (deviceId == null) {
-      var uuid = const Uuid();
-      deviceId = uuid.v4();
-    }
-
     var params = {
-          'device': kIsWeb ? 'web' : Platform.operatingSystem,
-          'device_token': deviceId,
-          'user_id': userId ??= '' // user uuid
-        };
+      'device': DbPlatform.operatingSystem,
+      'device_token': DbPlatform.getDeviceId(prefs),
+      'user_id': userId ??= '' // user uuid
+    };
 
-    post('/api/device/register',
-        body: params).then((response) {
+    post('/api/device/register', body: params).then((response) {
       if (response.statusCode == 200) {
-        prefs.setString(Application.uuidKey, deviceId!);
+        prefs.setString(Application.uuidKey, params["device_token"]!);
       }
     });
   }
