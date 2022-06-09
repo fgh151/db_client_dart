@@ -72,6 +72,7 @@ class Application extends InheritedWidget {
       context.dependOnInheritedWidgetOfExactType<Application>() as Application;
 
   User getUser() {
+    _user ??= User(_client);
     return _user!;
   }
 }
