@@ -57,8 +57,8 @@ class Application extends InheritedWidget {
     return _storage!;
   }
 
-  EntityManager getEntityManager(String topic) {
-    return EntityManager(getClient(), topic);
+  EntityManager getEntityManager({String? topic}) {
+    return EntityManager(getClient(), topic ??= _topic);
   }
 
   @override
