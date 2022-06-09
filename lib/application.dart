@@ -1,9 +1,14 @@
+import 'dart:isolate';
+
 import 'package:db_client_dart/config.dart';
 import 'package:db_client_dart/entity_manager.dart';
+import 'package:db_client_dart/platrorm.dart';
 import 'package:db_client_dart/storage.dart';
 import 'package:db_client_dart/user.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
 
 import 'db_client_dart.dart';
 import 'http_client.dart';
@@ -18,13 +23,19 @@ class Application extends InheritedWidget {
 
   static const uuidKey = 'device_key';
 
+  bool pushSubscribe;
+
   Application(
       String schema, String server, int port, String topic, String appKey,
-      {Key? key, required super.child})
+      {Key? key, required super.child, this.pushSubscribe = false})
       : _client = AppHttpClient(appKey, schema, server, port),
         super(key: key) {
     _topic = topic;
     SharedPreferences.getInstance().then((prefs) {
+
+      print("run isolate");
+      Isolate.spawn(pushHandle, PushIsolateModel(DbPlatform.getDeviceId(prefs), schema, server, port ));
+
       var token = prefs.getString("token");
       if (token != null) {
         _client.setAuthHeader(prefs.getString("token"));
@@ -75,4 +86,35 @@ class Application extends InheritedWidget {
     _user ??= User(_client);
     return _user!;
   }
+
+  void pushHandle(PushIsolateModel model) {
+
+    var uri = Uri(
+      scheme: model.schema == 'http' ? "ws" : "wss",
+      host: model.server,
+      port: model.port,
+      path: "/api/push/subscribe/${model.deviceId}"
+    );
+
+    print("Create channel in isolate " + uri.toString());
+    var channel = WebSocketChannel.connect(uri);
+
+    channel.stream.listen((message) {
+
+      print("WS: " +message.toString());
+
+    });
+
+  }
+}
+
+
+class PushIsolateModel {
+  final String deviceId;
+  final String schema;
+  final String server;
+  final int port;
+
+  PushIsolateModel(this.deviceId, this.schema, this.server, this.port);
+
 }
