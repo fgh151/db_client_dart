@@ -1,3 +1,7 @@
 ## 0.0.1
 
-* TODO: Describe initial release.
+* Init base
+
+## 0.0.2
+
+* Stable main functions
