@@ -81,10 +81,26 @@ class AppHttpClient {
         port: port,
         path: url,
         queryParameters: queryParameters);
-    return http.get(
+
+    return http
+        .get(
       uri,
       headers: getHeaders(),
-    );
+    )
+        .then((resp) {
+      if (resp.statusCode == 200) {
+        SharedPreferences.getInstance().then((prefs) {
+          prefs.setString(uri.toString(), resp.body);
+        });
+
+        return resp;
+      }
+
+      return SharedPreferences.getInstance().then((prefs) {
+        var body = prefs.getString(uri.toString());
+        return http.Response(body ??= '', 200);
+      });
+    });
   }
 
   Future<http.Response> delete(String url, {Object? body}) {
