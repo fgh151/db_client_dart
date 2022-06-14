@@ -11,26 +11,22 @@ and the Flutter guide for
 [developing packages and plugins](https://flutter.dev/developing-packages). 
 -->
 
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
+This is SDK to work with [db server](https://github.com/fgh151/rdb-server)
 
 ## Features
 
-TODO: List what your package can do. Maybe include images, gifs, or videos.
+ * Provide user model to authenticate an register
+ * Entity manager and entity abstract class
+ * Socket connection
 
 ## Getting started
 
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
+Add dependency to pubspec file
+```yaml
+dependencies: 
+  db_client_dart: 0.0.2
+```
 
 ## Usage
 
-```dart
-const db = Db('http', 'localhost', 9090, 'test');
-
-db.sendMessage(<String, String>{
-      'title': "test",
-    }).then((value) {
-     print(value.body);
-  });
-```
+example app [repo](https://github.com/fgh151/logbook)

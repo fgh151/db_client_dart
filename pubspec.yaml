@@ -1,6 +1,6 @@
 name: db_client_dart
 description: Flutter client for db server.
-version: 0.0.1
+version: 0.0.2
 homepage: https://openitstudio.ru
 repository: https://github.com/fgh151/db_client_dart
 issue_tracker: https://github.com/fgh151/db_client_dart/issues
