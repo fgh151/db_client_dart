@@ -2,10 +2,9 @@ import 'dart:isolate';
 
 import 'package:db_client_dart/config.dart';
 import 'package:db_client_dart/entity_manager.dart';
-import 'package:db_client_dart/platrorm.dart';
+import 'package:db_client_dart/platform.dart';
 import 'package:db_client_dart/storage.dart';
 import 'package:db_client_dart/user.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
@@ -33,7 +32,6 @@ class Application extends InheritedWidget {
     _topic = topic;
     SharedPreferences.getInstance().then((prefs) {
 
-      print("run isolate");
       Isolate.spawn(pushHandle, PushIsolateModel(DbPlatform.getDeviceId(prefs), schema, server, port ));
 
       var token = prefs.getString("token");
@@ -96,12 +94,11 @@ class Application extends InheritedWidget {
       path: "/api/push/subscribe/${model.deviceId}"
     );
 
-    print("Create channel in isolate " + uri.toString());
     var channel = WebSocketChannel.connect(uri);
 
     channel.stream.listen((message) {
 
-      print("WS: " +message.toString());
+      print("WS: $message");
 
     });
 

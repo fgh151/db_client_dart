@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:db_client_dart/platrorm.dart';
+import 'package:db_client_dart/platform.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
