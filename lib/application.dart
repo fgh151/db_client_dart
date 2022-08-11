@@ -32,7 +32,10 @@ class Application extends InheritedWidget {
     _topic = topic;
     SharedPreferences.getInstance().then((prefs) {
 
-      Isolate.spawn(pushHandle, PushIsolateModel(DbPlatform.getDeviceId(prefs), schema, server, port ));
+      if (pushSubscribe) {
+        Isolate.spawn(pushHandle, PushIsolateModel(
+            DbPlatform.getDeviceId(prefs), schema, server, port));
+      }
 
       var token = prefs.getString("token");
       if (token != null) {
